@@ -20,6 +20,7 @@ const readCounter = (callback) => {
     if (err) {
       callback(null, 0);
     } else {
+      //takes values in fileData and convert back into number
       callback(null, Number(fileData));
     }
   });
@@ -38,9 +39,18 @@ const writeCounter = (count, callback) => {
 
 // Public API - Fix this function //////////////////////////////////////////////
 
-exports.getNextUniqueId = () => {
-  counter = counter + 1;
-  return zeroPaddedNumber(counter);
+exports.getNextUniqueId = (callback = () => {}) => {
+  //invoke readCounter to get number from file
+  readCounter((err, number) => {
+    //update the counter by 1
+    number++;
+    //invoke writeCounter with updated number to file
+    writeCounter(number, (err, uniqueId) => {
+      // invoke callback
+      callback(err, uniqueId);
+    });
+  });
+  // return zeroPaddedNumber(counter);
 };
 
 
