@@ -66,24 +66,47 @@ exports.readOne = (id, callback) => {
 };
 
 exports.update = (id, text, callback) => {
-  var item = items[id];
-  if (!item) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    items[id] = text;
-    callback(null, { id, text });
-  }
+  // get the path of the file with the given id
+  var newPath = path.join(exports.dataDir, `${id}.txt`);
+  // invoke fs.readFile to check if the file with input id exist
+  fs.readFile(newPath, (err) => {
+    // check if err (file on the newPath does not exist)
+    if (err) {
+      // invoke callback with err
+      callback(err);
+    // otherwise
+    } else {
+      // invoke fs.writeFile with path to file with input id and input text
+      fs.writeFile(newPath, text, (err) => {
+        // case for error
+        if (err) {
+          // pass error to callback
+          callback(err);
+        // case for success
+        } else {
+          // create a new object with input id and input text
+          var contentsObj = {id: id, text: text};
+          // pass the updated object to the callback
+          callback(null, contentsObj);
+        }
+      });
+    }
+  });
 };
 
 exports.delete = (id, callback) => {
-  var item = items[id];
-  delete items[id];
-  if (!item) {
-    // report an error if item not found
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback();
-  }
+  // get the path of the file with the given id
+  var newPath = path.join(exports.dataDir, `${id}.txt`);
+  // invoke fs.unlink to delete file on the path
+  fs.unlink(newPath, (err) => {
+    // case for error
+    if (err) {
+      // pass error to callback
+      callback(err);
+    } else {
+      callback(null);
+    }
+  });
 };
 
 // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////
