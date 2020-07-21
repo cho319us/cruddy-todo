@@ -6,11 +6,21 @@ const counter = require('./counter');
 var items = {};
 
 // Public API - Fix these CRUD functions ///////////////////////////////////////
-
+//data
 exports.create = (text, callback) => {
-  var id = counter.getNextUniqueId();
-  items[id] = text;
-  callback(null, { id, text });
+  // invoke getNextUniqueId to generate a new unique id
+  counter.getNextUniqueId((err, uniqueid) => {
+    // create a path with the unique id inside the data directory
+    var newPath = path.join(exports.dataDir, `${uniqueid}.txt`);
+    // write file with the input text to the path
+    fs.writeFile(newPath, text, (err) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, {id: uniqueid, text: text});
+      }
+    });
+  });
 };
 
 exports.readAll = (callback) => {
@@ -53,6 +63,7 @@ exports.delete = (id, callback) => {
 // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////
 
 exports.dataDir = path.join(__dirname, 'data');
+// exports.dataDir is equal to /hrsf129-cruddy-todo/datastore/data
 
 exports.initialize = () => {
   if (!fs.existsSync(exports.dataDir)) {
