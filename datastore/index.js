@@ -24,10 +24,25 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+  // invoke fs.readdir to read contents of directory;
+  fs.readdir(exports.dataDir, (err, files) => {
+    // case for err
+    if (err) {
+      // pass err to callback
+      callback(err);
+    // case for success
+    } else {
+      // iterate over the files array from readdir
+      var mappedFiles = files.map(file => {
+        // for each file, retrieve uniqueId (slice)
+        var uniqueId = file.slice(0, 5);
+        // return object literal with id and text equal to uniqueId
+        return {id: uniqueId, text: uniqueId};
+      });
+      // pass mapped data to callback
+      callback(null, mappedFiles);
+    }
   });
-  callback(null, data);
 };
 
 exports.readOne = (id, callback) => {
