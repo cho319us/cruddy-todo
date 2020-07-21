@@ -46,12 +46,23 @@ exports.readAll = (callback) => {
 };
 
 exports.readOne = (id, callback) => {
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+  // get the path of the file with the given id
+  var newPath = path.join(exports.dataDir, `${id}.txt`);
+  // invoke fs.readFile to read contents of file with give id;
+  // Note => fileContents we get from readFile are a Buffer
+  fs.readFile(newPath, (err, fileContents) => {
+    // check if err
+    if (err) {
+      // invoke callback with err
+      callback(err);
+    // otherwise
+    } else {
+      // create an object containing the given id and file contents
+      var contentsObj = {id: id, text: fileContents.toString()};
+      // pass null and object to callback
+      callback(null, contentsObj);
+    }
+  });
 };
 
 exports.update = (id, text, callback) => {
